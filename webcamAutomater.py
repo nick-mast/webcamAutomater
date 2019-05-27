@@ -10,37 +10,45 @@
 import sys
 import subprocess
 import time
+import datetime
 import os
+import re
 import argparse
 from argparse import ArgumentParser, ArgumentTypeError
-#import matplotlib
-#matplotlib.use('Agg')
-#import matplotlib.pyplot as plt
-#import numpy as np
 
 def capture_image():
-	#This starts the webcam in vlc, captures a screenshot, then times out vlc and kills it
-	#command="timeout 1 vlc v4l2:///dev/video1 --quiet --video-filter scene --no-audio --scene-path . --scene-prefix cam1_image_ --scene-format png"
+	fileName="cam"+get_trailing_number(args.device)+"_00001.png"
 
 	#This silently grabs the cam image using ffmpeg
-	#command="ffmpeg -f video4linux2 -i /dev/video0 -vframes 1 -y -loglevel panic cam1_image_00001.png"
-	command="ffmpeg -f video4linux2 -i "+args.device+" -vframes 1 -y -loglevel panic cam1_image_00001.png"
-	print command 
+	command="ffmpeg -f video4linux2 -i "+args.device+" -vframes 1 -y -loglevel panic "+fileName
+	#print command 
+	
 	print subprocess.Popen(command, shell=True, stdout=subprocess.PIPE).stdout.read()
-	#At this point the image should be saved as 'cam_image_00001.png'
+	#At this point the image should be saved as something like 'cam1_00001.png'
 
 	return
 
 def update_website_image():
+	fileName="cam"+get_trailing_number(args.device)+"_00001.png"
 	#Send a copy to the K100 monitoring page folder
-	print subprocess.Popen("cp cam1_image_00001.png /home/webusers/cdms/public_html/cdms_restricted/K100/thermometers/tempMon/images", shell=True, stdout=subprocess.PIPE).stdout.read()
+	command="cp "+fileName+" /home/webusers/cdms/public_html/cdms_restricted/K100/thermometers/tempMon/images/MB_image.png"
+	print subprocess.Popen(command, shell=True, stdout=subprocess.PIPE).stdout.read()
 	return
 
 def make_timestamped_copy():
-	#We want to rename this with the unix timestamp
-	os.rename("cam1_image_00001.png","images/cam1_image_"+str(int(time.time()))+".png")
+	#We want to rename this with the current date and time	
+	fileName_old="cam"+get_trailing_number(args.device)+"_00001.png"
+
+	dt=str(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+	fileName_new="images/cam1_image_"+dt+".png"
+	
+	os.rename(fileName_old, fileName_new)
+
 	return
 
+def get_trailing_number(s):
+	m = re.search(r'\d+$', s)
+	return str(int(m.group())) if m else ""
 
 ###############################################################################
 # this is the standard boilerplate that allows this to be run from the command line
@@ -58,6 +66,9 @@ if __name__ == '__main__':
 	if not (args.delay_min is None): delay_sec=args.delay_min*60.0
 	startTime=time.time()
 
+	if not os.path.exists(args.device):
+		print "webcamAutomater error: "+args.device+" does not exist."
+		sys.exit(1)
 
 	if(args.single):
 		#Take a single image
