@@ -44,7 +44,7 @@ def make_timestamped_copy():
 	#We want to rename this with the current date and time	
 	fileName_old="cam"+get_trailing_number(args.device)+"_00001.png"
 	
-	if not os.path.exists(filename_old):
+	if not os.path.exists(fileName_old):
 		print "Error in make_timestamped_copy: "+fileName_old+" does not exist."
 		return
 	
