@@ -30,6 +30,11 @@ def capture_image():
 
 def update_website_image():
 	fileName="cam"+get_trailing_number(args.device)+"_00001.png"
+	
+	if not os.path.exists(filename):
+		print "Error in update_website_image: "+fileName+" does not exist."
+		return
+	
 	#Send a copy to the K100 monitoring page folder
 	command="cp "+fileName+" /home/webusers/cdms/public_html/cdms_restricted/K100/thermometers/tempMon/images/MB_image.png"
 	print subprocess.Popen(command, shell=True, stdout=subprocess.PIPE).stdout.read()
@@ -38,6 +43,11 @@ def update_website_image():
 def make_timestamped_copy():
 	#We want to rename this with the current date and time	
 	fileName_old="cam"+get_trailing_number(args.device)+"_00001.png"
+	
+	if not os.path.exists(filename_old):
+		print "Error in make_timestamped_copy: "+fileName_old+" does not exist."
+		return
+	
 
 	dt=str(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
 	fileName_new="images/cam1_image_"+dt+".png"
