@@ -31,7 +31,7 @@ def capture_image():
 def update_website_image():
 	fileName="cam"+get_trailing_number(args.device)+"_00001.png"
 	
-	if not os.path.exists(filename):
+	if not os.path.exists(fileName):
 		print "Error in update_website_image: "+fileName+" does not exist."
 		return
 	
